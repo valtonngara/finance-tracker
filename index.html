@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vault — Financial Tracker</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<!-- AUTH SCREENS -->
+<div id="auth-container" class="auth-container">
+  <div class="auth-bg">
+    <div class="auth-grain"></div>
+    <div class="auth-gradient-orb auth-orb-1"></div>
+    <div class="auth-gradient-orb auth-orb-2"></div>
+  </div>
+
+  <div class="auth-card" id="auth-card">
+    <div class="auth-logo">
+      <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
+        <rect width="40" height="40" rx="10" fill="var(--accent-green)"/>
+        <path d="M12 28V16L20 12L28 16V28L20 24L12 28Z" fill="white" opacity="0.9"/>
+        <path d="M20 12V24" stroke="white" stroke-width="1.5" opacity="0.6"/>
+      </svg>
+      <span class="auth-logo-text">Vault</span>
+      <div class="auth-lang" id="auth-lang-selector"></div>
+    </div>
+
+    <!-- Login Form -->
+    <form id="login-form" class="auth-form active">
+      <h1 class="auth-title" data-i18n="auth.welcome">Welcome back</h1>
+      <p class="auth-subtitle" data-i18n="auth.signin_subtitle">Sign in to your financial dashboard</p>
+      <div class="form-group">
+        <label data-i18n="auth.email">Email</label>
+        <input type="email" placeholder="you@example.com" required>
+      </div>
+      <div class="form-group">
+        <label data-i18n="auth.password">Password</label>
+        <div class="password-field">
+          <input type="password" data-i18n-placeholder="auth.enter_password" placeholder="Enter your password" required>
+          <button type="button" class="toggle-pw" onclick="togglePassword(this)">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+          </button>
+        </div>
+      </div>
+      <div class="form-row">
+        <label class="checkbox-label"><input type="checkbox"> <span data-i18n="auth.remember_me">Remember me</span></label>
+        <a href="#" onclick="showAuthForm('forgot')" data-i18n="auth.forgot_password">Forgot password?</a>
+      </div>
+      <button type="submit" class="btn-primary" onclick="handleLogin(event)" data-i18n="auth.sign_in">Sign In</button>
+      <p class="auth-footer"><span data-i18n="auth.no_account">Don't have an account?</span> <a href="#" onclick="showAuthForm('register')" data-i18n="auth.create_one">Create one</a></p>
+    </form>
+
+    <!-- Register Form -->
+    <form id="register-form" class="auth-form">
+      <h1 class="auth-title" data-i18n="auth.create_account">Create account</h1>
+      <p class="auth-subtitle" data-i18n="auth.register_subtitle">Start tracking your finances today</p>
+      <div class="form-row-2col">
+        <div class="form-group">
+          <label data-i18n="auth.first_name">First Name</label>
+          <input type="text" placeholder="John" required>
+        </div>
+        <div class="form-group">
+          <label data-i18n="auth.last_name">Last Name</label>
+          <input type="text" placeholder="Doe" required>
+        </div>
+      </div>
+      <div class="form-group">
+        <label data-i18n="auth.email">Email</label>
+        <input type="email" placeholder="you@example.com" required>
+      </div>
+      <div class="form-group">
+        <label data-i18n="auth.password">Password</label>
+        <div class="password-field">
+          <input type="password" data-i18n-placeholder="auth.min_chars" placeholder="Min 8 characters" required>
+          <button type="button" class="toggle-pw" onclick="togglePassword(this)">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+          </button>
+        </div>
+        <div class="password-strength" id="pw-strength"><div class="pw-bar"></div></div>
+      </div>
+      <button type="submit" class="btn-primary" onclick="handleRegister(event)" data-i18n="auth.create_account_btn">Create Account</button>
+      <p class="auth-footer"><span data-i18n="auth.have_account">Already have an account?</span> <a href="#" onclick="showAuthForm('login')" data-i18n="auth.sign_in_link">Sign in</a></p>
+    </form>
+
+    <!-- Forgot Password Form -->
+    <form id="forgot-form" class="auth-form">
+      <h1 class="auth-title" data-i18n="auth.reset_password">Reset password</h1>
+      <p class="auth-subtitle" data-i18n="auth.reset_subtitle">We'll send a reset link to your email</p>
+      <div class="form-group">
+        <label data-i18n="auth.email">Email</label>
+        <input type="email" placeholder="you@example.com" required>
+      </div>
+      <button type="submit" class="btn-primary" onclick="handleForgot(event)" data-i18n="auth.send_reset">Send Reset Link</button>
+      <p class="auth-footer"><a href="#" onclick="showAuthForm('login')" data-i18n="auth.back_signin">Back to sign in</a></p>
+    </form>
+
+    <!-- Success Message -->
+    <div id="auth-success" class="auth-form auth-success-msg">
+      <div class="success-icon">
+        <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
+          <circle cx="24" cy="24" r="24" fill="var(--accent-green)" opacity="0.12"/>
+          <path d="M16 24L22 30L32 18" stroke="var(--accent-green)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <h1 class="auth-title" data-i18n="auth.check_email">Check your email</h1>
+      <p class="auth-subtitle" data-i18n="auth.reset_sent">We've sent a password reset link to your email address.</p>
+      <button class="btn-primary" onclick="showAuthForm('login')" data-i18n="auth.back_to_signin">Back to Sign In</button>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN APP -->
+<div id="app-container" class="app-container hidden">
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      <svg width="32" height="32" viewBox="0 0 40 40" fill="none">
+        <rect width="40" height="40" rx="10" fill="var(--accent-green)"/>
+        <path d="M12 28V16L20 12L28 16V28L20 24L12 28Z" fill="white" opacity="0.9"/>
+        <path d="M20 12V24" stroke="white" stroke-width="1.5" opacity="0.6"/>
+      </svg>
+      <span>Vault</span>
+    </div>
+    <nav class="sidebar-nav">
+      <a href="#" class="nav-item active" data-page="dashboard" onclick="navigateTo('dashboard', this)">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+        <span data-i18n="nav.dashboard">Dashboard</span>
+      </a>
+      <a href="#" class="nav-item" data-page="transactions" onclick="navigateTo('transactions', this)">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
+        <span data-i18n="nav.transactions">Transactions</span>
+      </a>
+      <a href="#" class="nav-item" data-page="budgets" onclick="navigateTo('budgets', this)">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/><path d="M9 12l2 2 4-4"/></svg>
+        <span data-i18n="nav.budgets">Budgets</span>
+      </a>
+      <a href="#" class="nav-item" data-page="goals" onclick="navigateTo('goals', this)">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/></svg>
+        <span data-i18n="nav.goals">Goals</span>
+      </a>
+      <a href="#" class="nav-item" data-page="analytics" onclick="navigateTo('analytics', this)">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M18 20V10M12 20V4M6 20V14"/></svg>
+        <span data-i18n="nav.analytics">Analytics</span>
+      </a>
+    </nav>
+    <div class="sidebar-bottom">
+      <div class="sidebar-controls">
+        <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme">
+          <svg class="icon-sun" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+          <svg class="icon-moon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
+        </button>
+        <div id="sidebar-lang-selector"></div>
+      </div>
+      <div class="sidebar-user" onclick="handleLogout()">
+        <div class="user-avatar">JD</div>
+        <div class="user-info">
+          <span class="user-name">John Doe</span>
+          <span class="user-email">john@example.com</span>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Mobile Header -->
+  <header class="mobile-header">
+    <button class="hamburger" onclick="toggleSidebar()">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h18M3 6h18M3 18h18"/></svg>
+    </button>
+    <span class="mobile-logo">Vault</span>
+    <button class="theme-toggle" onclick="toggleTheme()">
+      <svg class="icon-sun" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+      <svg class="icon-moon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
+    </button>
+  </header>
+
+  <!-- Main Content -->
+  <main class="main-content" id="main-content">
+
+    <!-- DASHBOARD PAGE -->
+    <section class="page active" id="page-dashboard">
+      <div class="page-header">
+        <div>
+          <h1 class="page-title" data-i18n="dashboard.title">Dashboard</h1>
+          <p class="page-subtitle" data-i18n="dashboard.subtitle">March 2026 Overview</p>
+        </div>
+        <div class="page-actions">
+          <button class="btn-outline" onclick="exportReport()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+            <span data-i18n="dashboard.export">Export</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Summary Cards -->
+      <div class="summary-cards">
+        <div class="summary-card card-income" style="--delay:0">
+          <div class="card-icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
+          </div>
+          <div class="card-content">
+            <span class="card-label" data-i18n="dashboard.total_income">Total Income</span>
+            <span class="card-value">$12,480.00</span>
+            <span class="card-change positive">+12.5% <span data-i18n="dashboard.from_last_month">from last month</span></span>
+          </div>
+        </div>
+        <div class="summary-card card-expense" style="--delay:1">
+          <div class="card-icon icon-expense">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3h18v18H3zM8 12h8"/></svg>
+          </div>
+          <div class="card-content">
+            <span class="card-label" data-i18n="dashboard.total_expenses">Total Expenses</span>
+            <span class="card-value">$8,240.00</span>
+            <span class="card-change negative">+3.2% <span data-i18n="dashboard.from_last_month">from last month</span></span>
+          </div>
+        </div>
+        <div class="summary-card card-savings" style="--delay:2">
+          <div class="card-icon icon-savings">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+          </div>
+          <div class="card-content">
+            <span class="card-label" data-i18n="dashboard.savings">Savings</span>
+            <span class="card-value">$4,240.00</span>
+            <span class="card-change positive">+28.1% <span data-i18n="dashboard.from_last_month">from last month</span></span>
+          </div>
+        </div>
+        <div class="summary-card card-balance" style="--delay:3">
+          <div class="card-icon icon-balance">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/><path d="M12 6v6l4 2"/></svg>
+          </div>
+          <div class="card-content">
+            <span class="card-label" data-i18n="dashboard.net_balance">Net Balance</span>
+            <span class="card-value">$34,650.00</span>
+            <span class="card-change positive">+8.4% <span data-i18n="dashboard.from_last_month">from last month</span></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Charts Row -->
+      <div class="charts-grid">
+        <div class="chart-card chart-wide">
+          <div class="chart-header">
+            <h3 data-i18n="dashboard.monthly_trends">Monthly Trends</h3>
+            <div class="chart-legend">
+              <span class="legend-item"><span class="legend-dot green"></span><span data-i18n="dashboard.income">Income</span></span>
+              <span class="legend-item"><span class="legend-dot red"></span><span data-i18n="dashboard.expenses">Expenses</span></span>
+            </div>
+          </div>
+          <canvas id="chart-line" height="260"></canvas>
+        </div>
+        <div class="chart-card">
+          <div class="chart-header">
+            <h3 data-i18n="dashboard.spending_by_category">Spending by Category</h3>
+          </div>
+          <canvas id="chart-pie" height="260"></canvas>
+          <div class="pie-legend" id="pie-legend"></div>
+        </div>
+      </div>
+
+      <!-- Recent Transactions -->
+      <div class="chart-card">
+        <div class="chart-header">
+          <h3 data-i18n="dashboard.recent_transactions">Recent Transactions</h3>
+          <a href="#" class="link-subtle" onclick="navigateTo('transactions', document.querySelector('[data-page=transactions]'))" data-i18n="dashboard.view_all">View all</a>
+        </div>
+        <div class="transactions-mini" id="recent-transactions"></div>
+      </div>
+    </section>
+
+    <!-- TRANSACTIONS PAGE -->
+    <section class="page" id="page-transactions">
+      <div class="page-header">
+        <div>
+          <h1 class="page-title" data-i18n="transactions.title">Transactions</h1>
+          <p class="page-subtitle" data-i18n="transactions.subtitle">Manage your income and expenses</p>
+        </div>
+        <button class="btn-primary btn-sm" onclick="openTransactionModal()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
+          <span data-i18n="transactions.add">Add Transaction</span>
+        </button>
+      </div>
+
+      <!-- Filters -->
+      <div class="filters-bar">
+        <div class="search-box">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+          <input type="text" data-i18n-placeholder="transactions.search" placeholder="Search transactions..." oninput="filterTransactions()">
+        </div>
+        <select class="filter-select" id="filter-category" onchange="filterTransactions()">
+          <option value="" data-i18n="transactions.all_categories">All Categories</option>
+          <option value="Housing">Housing</option><option value="Food">Food</option><option value="Transport">Transport</option><option value="Shopping">Shopping</option><option value="Entertainment">Entertainment</option><option value="Healthcare">Healthcare</option><option value="Salary">Salary</option><option value="Freelance">Freelance</option>
+        </select>
+        <select class="filter-select" id="filter-type" onchange="filterTransactions()">
+          <option value="" data-i18n="transactions.all_types">All Types</option>
+          <option value="income" data-i18n="transactions.income">Income</option><option value="expense" data-i18n="transactions.expense">Expense</option>
+        </select>
+        <input type="date" class="filter-select" onchange="filterTransactions()">
+      </div>
+
+      <!-- Transaction List -->
+      <div class="transactions-list" id="transactions-list"></div>
+    </section>
+
+    <!-- BUDGETS PAGE -->
+    <section class="page" id="page-budgets">
+      <div class="page-header">
+        <div>
+          <h1 class="page-title" data-i18n="budgets.title">Budgets</h1>
+          <p class="page-subtitle" data-i18n="budgets.subtitle">Track your spending limits</p>
+        </div>
+        <button class="btn-primary btn-sm" onclick="openBudgetModal()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
+          <span data-i18n="budgets.add">Add Budget</span>
+        </button>
+      </div>
+      <div class="budgets-grid" id="budgets-grid"></div>
+    </section>
+
+    <!-- GOALS PAGE -->
+    <section class="page" id="page-goals">
+      <div class="page-header">
+        <div>
+          <h1 class="page-title" data-i18n="goals.title">Savings Goals</h1>
+          <p class="page-subtitle" data-i18n="goals.subtitle">Track progress toward your targets</p>
+        </div>
+        <button class="btn-primary btn-sm" onclick="openGoalModal()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
+          <span data-i18n="goals.add">Add Goal</span>
+        </button>
+      </div>
+      <div class="goals-grid" id="goals-grid"></div>
+    </section>
+
+    <!-- ANALYTICS PAGE -->
+    <section class="page" id="page-analytics">
+      <div class="page-header">
+        <div>
+          <h1 class="page-title" data-i18n="analytics.title">Analytics</h1>
+          <p class="page-subtitle" data-i18n="analytics.subtitle">Deep dive into your financial data</p>
+        </div>
+        <div class="page-actions">
+          <select class="filter-select" id="analytics-period" onchange="updateAnalytics()">
+            <option data-i18n="analytics.last_6_months">Last 6 Months</option><option data-i18n="analytics.last_12_months">Last 12 Months</option><option data-i18n="analytics.this_year">This Year</option>
+          </select>
+        </div>
+      </div>
+      <div class="analytics-summary">
+        <div class="analytics-stat">
+          <span class="stat-label" data-i18n="analytics.avg_income">Avg. Monthly Income</span>
+          <span class="stat-value">$11,830</span>
+        </div>
+        <div class="analytics-stat">
+          <span class="stat-label" data-i18n="analytics.avg_expenses">Avg. Monthly Expenses</span>
+          <span class="stat-value">$7,920</span>
+        </div>
+        <div class="analytics-stat">
+          <span class="stat-label" data-i18n="analytics.savings_rate">Savings Rate</span>
+          <span class="stat-value stat-positive">33.1%</span>
+        </div>
+        <div class="analytics-stat">
+          <span class="stat-label" data-i18n="analytics.highest_expense">Highest Expense</span>
+          <span class="stat-value" data-i18n="cat.Housing">Housing</span>
+        </div>
+      </div>
+      <div class="charts-grid">
+        <div class="chart-card chart-wide">
+          <div class="chart-header">
+            <h3 data-i18n="analytics.income_vs_expenses">Income vs Expenses</h3>
+          </div>
+          <canvas id="chart-bar" height="280"></canvas>
+        </div>
+        <div class="chart-card">
+          <div class="chart-header">
+            <h3 data-i18n="analytics.top_categories">Top Spending Categories</h3>
+          </div>
+          <div class="top-categories" id="top-categories"></div>
+        </div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-header"><h3 data-i18n="analytics.savings_trend">Monthly Savings Trend</h3></div>
+        <canvas id="chart-savings" height="220"></canvas>
+      </div>
+    </section>
+  </main>
+</div>
+
+<!-- MODALS -->
+<div class="modal-overlay" id="modal-overlay" onclick="closeModal()">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-header">
+      <h2 id="modal-title">Add Transaction</h2>
+      <button class="modal-close" onclick="closeModal()">&times;</button>
+    </div>
+    <div class="modal-body" id="modal-body"></div>
+  </div>
+</div>
+
+<!-- NOTIFICATIONS -->
+<div class="notifications" id="notifications"></div>
+
+<script src="i18n.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
