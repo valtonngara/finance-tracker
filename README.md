@@ -1,4 +1,4 @@
-# FinTrack - Personal Finance Tracker
+# Expensera
 
 A full-featured personal finance tracker with a sleek dark UI, built with Angular 17 and Python FastAPI.
 
